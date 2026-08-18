@@ -1,9 +1,9 @@
 import "./globals.css";
 
 export const metadata = {
-  title: "Storyboard Platform IPC — Penurunan Stunting Payakumbuh",
+  title: "TEGAK — Kolaborasi Sakato untuk Stunting",
   description:
-    "Platform Kolaborasi Interprofessional Teamworking Berbasis Aplikasi Layanan Primer Puskesmas — Strategi Penurunan Stunting di Kota Payakumbuh.",
+    "TEGAK — Kolaborasi Sakato untuk Stunting. Platform Kolaborasi Interprofessional Teamworking Berbasis Aplikasi Layanan Primer Puskesmas — Strategi Penurunan Stunting di Kota Payakumbuh.",
 };
 
 export default function RootLayout({ children }) {

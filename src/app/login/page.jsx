@@ -22,10 +22,10 @@ export default function LoginPage({ searchParams }) {
         <div className="hidden flex-col justify-between bg-primary-800 p-8 text-primary-50 md:flex">
           <div>
             <p className="text-xs font-semibold uppercase tracking-wide text-primary-200">
-              Storyboard Platform
+              TEGAK
             </p>
             <h1 className="mt-2 text-2xl font-bold leading-snug">
-              Kolaborasi Interprofessional Teamworking — Layanan Primer Puskesmas
+              Kolaborasi Sakato untuk Stunting
             </h1>
             <p className="mt-3 text-sm text-primary-100">
               Strategi Penurunan Stunting di Kota Payakumbuh. Disusun berdasarkan temuan FGD
@@ -45,7 +45,7 @@ export default function LoginPage({ searchParams }) {
         </div>
 
         <div className="p-8">
-          <h2 className="text-xl font-bold text-ink-900">Masuk ke Platform</h2>
+          <h2 className="text-xl font-bold text-ink-900">Masuk ke TEGAK</h2>
           <p className="mt-1 text-sm text-ink-500">
             Gunakan akun peran Anda (Kader, Bidan, Dokter, Ahli Gizi, Sanitarian, atau Kepala
             Puskesmas).

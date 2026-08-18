@@ -1,18 +1,9 @@
-# Platform Kolaborasi Interprofessional Teamworking — Puskesmas Payakumbuh
+# TEGAK — Kolaborasi Sakato untuk Stunting
 
 Aplikasi web (Next.js) untuk **Model Kolaborasi Interprofessional Teamworking Berbasis
 Aplikasi Layanan Primer Puskesmas — Strategi Penurunan Stunting di Kota Payakumbuh**,
 dibangun dari storyboard `Storyboard_Platform_IPC_Stunting.pptx` (8 layar utama,
 disusun berdasarkan temuan FGD Puskesmas Padang Kerambil, Fase 1, 2026).
-
-> **Catatan penting:** kode ini ditulis lengkap secara manual mengikuti konvensi
-> Next.js App Router, tetapi **belum pernah dijalankan/`npm install`/di-build** di
-> lingkungan tempat kode ini dibuat, karena lingkungan tersebut tidak memiliki akses
-> ke npm registry. Setiap file `.js`/`.jsx` sudah lolos pemeriksaan sintaks otomatis
-> (esbuild), tapi Anda tetap perlu menjalankan langkah di bawah ini di komputer
-> Anda sendiri untuk memverifikasi & melanjutkan pengembangan. Jika menemukan error
-> saat `npm install`/`npm run dev`, itu wajar untuk kode yang belum pernah
-> dijalankan — silakan perbaiki atau minta bantuan lebih lanjut.
 
 ## Fitur (8 Layar)
 

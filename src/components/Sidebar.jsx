@@ -12,6 +12,7 @@ const NAV_ITEMS = [
   { href: "/jadwal", label: "Jadwal Tim", icon: "📅", roles: null },
   { href: "/monitoring", label: "Dashboard Monitoring", icon: "📊", roles: ["KEPALA_PUSKESMAS"] },
   { href: "/praktik-baik", label: "Praktik Baik", icon: "💡", roles: null },
+  { href: "/pengaturan/pengguna", label: "Pengaturan Pengguna", icon: "⚙️", roles: ["KEPALA_PUSKESMAS"] },
 ];
 
 export function Sidebar({ role }) {
@@ -19,10 +20,17 @@ export function Sidebar({ role }) {
 
   const items = NAV_ITEMS.filter((item) => !item.roles || item.roles.includes(role));
 
+  // Pilih href yang paling spesifik (terpanjang) yang cocok dengan pathname
+  // saat ini, supaya "/kasus/baru" tidak ikut membuat "/kasus" aktif juga.
+  const activeHref = items
+    .map((item) => item.href)
+    .filter((href) => pathname === href || pathname.startsWith(href + "/"))
+    .sort((a, b) => b.length - a.length)[0];
+
   return (
     <nav className="flex flex-col gap-1">
       {items.map((item) => {
-        const active = pathname === item.href || pathname.startsWith(item.href + "/");
+        const active = item.href === activeHref;
         return (
           <Link
             key={item.href}

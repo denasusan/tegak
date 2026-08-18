@@ -109,6 +109,192 @@ const MODUL_BELAJAR = [
   },
 ];
 
+// Data untuk generate kasus tambahan (demo dashboard: tabel, grafik tren,
+// diskusi aktif, notifikasi) — semua nama & wilayah fiktif untuk keperluan
+// uji coba, tersebar 6 bulan terakhir supaya grafik tren terlihat realistis.
+const KELURAHAN = [
+  "Padang Kerambil", "Balai Nan Duo", "Ibuh", "Tigo Koto", "Payolansek",
+  "Aur Kuning", "Balai Batuang", "Tarok", "Aie Tabik",
+];
+const NAMA_DEPAN_BALITA = [
+  "Zikri", "Nabila", "Rafa", "Cika", "Fajar", "Hafiz", "Aisyah", "Dimas",
+  "Putri", "Rangga", "Yusuf", "Zahra", "Ilham", "Nadia", "Fikri", "Salma",
+  "Reza", "Intan", "Arif", "Bunga", "Farrel", "Keysha", "Naufal", "Alya",
+];
+const INISIAL_KELUARGA = ["A", "F", "D", "M", "S", "R", "P", "K", "N", "H"];
+const NAMA_ORTU = [
+  "Melati", "Ratna", "Siti", "Yuni", "Dewi", "Fitri", "Rina", "Wati",
+  "Ahmad", "Budi", "Doni", "Hendra", "Irwan", "Joko",
+];
+const HASIL_KUNJUNGAN_POOL = [
+  "Berat badan di bawah garis merah KMS, perlu pemantauan lanjutan.",
+  "Tinggi badan tidak sesuai usia, indikasi stunting ringan.",
+  "Riwayat lahir BBLR, asupan ASI belum optimal.",
+  "Kunjungan rutin — pertumbuhan mulai membaik dibanding bulan lalu.",
+  "Infeksi saluran napas berulang, nafsu makan menurun.",
+];
+const INDIKASI_RISIKO_POOL = [
+  "Berisiko stunting — BBLR & pertumbuhan tidak sesuai usia.",
+  "Berisiko stunting — pola asuh & sosial ekonomi pra-sejahtera.",
+  "Berisiko stunting — riwayat infeksi berulang.",
+  "Berisiko stunting — asupan gizi tidak seimbang.",
+];
+const ISI_PESAN_DISKUSI_POOL = [
+  "Jadwalkan pemeriksaan lanjutan minggu ini.",
+  "Rencana edukasi gizi sudah disiapkan.",
+  "Menunggu jadwal dari dokter.",
+  "Kondisi balita mulai membaik.",
+  "Perlu kunjungan rumah ulang.",
+];
+
+// Distribusi jumlah kasus per bulan (6 bulan terakhir, mundurBulan 5 = paling
+// lama, 0 = bulan berjalan) — bentuknya naik lalu turun, mirip tren nyata.
+const BULAN_MUNDUR = [5, 4, 3, 2, 1, 0];
+const JUMLAH_PER_BULAN = [8, 10, 12, 16, 14, 10];
+
+function acak(arr) {
+  return arr[Math.floor(Math.random() * arr.length)];
+}
+function acakInt(min, max) {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+function pilihTertimbang(pool) {
+  const total = pool.reduce((s, [, w]) => s + w, 0);
+  let r = Math.random() * total;
+  for (const [item, w] of pool) {
+    if (r < w) return item;
+    r -= w;
+  }
+  return pool[pool.length - 1][0];
+}
+function tanggalDiBulan(mundurBulan, hariKe) {
+  const d = new Date();
+  d.setDate(1);
+  d.setMonth(d.getMonth() - mundurBulan);
+  const akhirBulan = new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate();
+  d.setDate(Math.min(hariKe, akhirBulan));
+  d.setHours(9, acakInt(0, 59), 0, 0);
+  const sekarang = new Date();
+  return d > sekarang ? sekarang : d;
+}
+// Makin baru bulannya, makin besar kemungkinan kasus masih "dalam proses"
+// (bukan SELESAI) — supaya funnel-nya terasa realistis.
+function pilihStatusKasus(mundurBulan) {
+  if (mundurBulan >= 4) {
+    return pilihTertimbang([["SELESAI", 85], ["DALAM_DISKUSI_TIM", 10], ["DIRUJUK", 5]]);
+  }
+  if (mundurBulan >= 2) {
+    return pilihTertimbang([
+      ["SELESAI", 65], ["DALAM_DISKUSI_TIM", 15], ["DIRUJUK", 12], ["SKRINING_SELESAI", 8],
+    ]);
+  }
+  return pilihTertimbang([
+    ["SELESAI", 45], ["DALAM_DISKUSI_TIM", 20], ["DIRUJUK", 15],
+    ["SKRINING_SELESAI", 12], ["MENUNGGU_SKRINING", 8],
+  ]);
+}
+
+async function buatKasusTambahan(users) {
+  const totalKasusSekarang = await prisma.kasusBalita.count();
+  if (totalKasusSekarang >= 10) {
+    console.log("  - Sudah ada data kasus tambahan, lewati.");
+    return;
+  }
+
+  const penginput = ["KADER", "BIDAN"];
+  const pengirimDiskusi = ["BIDAN", "DOKTER", "AHLI_GIZI"];
+
+  for (let bulanIdx = 0; bulanIdx < BULAN_MUNDUR.length; bulanIdx++) {
+    const mundurBulan = BULAN_MUNDUR[bulanIdx];
+    const jumlah = JUMLAH_PER_BULAN[bulanIdx];
+
+    for (let i = 0; i < jumlah; i++) {
+      const status = pilihStatusKasus(mundurBulan);
+      const createdAt = tanggalDiBulan(mundurBulan, acakInt(1, 27));
+
+      const skrining =
+        status === "MENUNGGU_SKRINING"
+          ? undefined
+          : {
+              create: {
+                testMantoux: acak(["POSITIF", "NEGATIF", "BELUM_DIPERIKSA"]),
+                hasilHB: `${(9 + Math.random() * 3).toFixed(1)} g/dL`,
+                infeksiBerulang: Math.random() < 0.3,
+                lilaIbu: `${acakInt(20, 25)} cm`,
+                sosialEkonomi: acak(["Pra-sejahtera", "Sejahtera I", "Sejahtera II"]),
+                polaAsuh: acak(["Diasuh orang tua", "Diasuh nenek", "Dititip tetangga"]),
+                riwayatBBLR: Math.random() < 0.4,
+                mikrosefali: false,
+                isk: Math.random() < 0.1,
+                tb: Math.random() < 0.15,
+                hasilSkrining: Math.random() < 0.6 ? "POSITIF" : "NEGATIF",
+                diisiOlehId: users["DOKTER"].id,
+              },
+            };
+
+      const perluRujukan = ["DIRUJUK", "DALAM_DISKUSI_TIM", "SELESAI"].includes(status);
+      const jenisRujukan = acak(["AHLI_GIZI", "RS_TB"]);
+      const rujukan = !perluRujukan
+        ? undefined
+        : {
+            create: [
+              {
+                jenisRujukan,
+                tujuan:
+                  jenisRujukan === "AHLI_GIZI"
+                    ? "Ahli Gizi Puskesmas"
+                    : "RS Rujukan — dr. Anak (Poli TB Anak)",
+                alasan:
+                  jenisRujukan === "AHLI_GIZI"
+                    ? "Hasil skrining menunjukkan perlu kajian pola makan & gizi."
+                    : "Hasil skrining mengindikasikan perlu penanganan RS lanjutan.",
+                status: status === "SELESAI" ? "SELESAI_DITANGANI" : acak(["MENUNGGU", "DIKONFIRMASI"]),
+              },
+            ],
+          };
+
+      const perluDiskusi = ["DALAM_DISKUSI_TIM", "SELESAI"].includes(status);
+      const ditutup = status === "SELESAI";
+      const diskusi = !perluDiskusi
+        ? undefined
+        : {
+            create: {
+              briefing: "Ringkasan kasus & tujuan diskusi tim lintas profesi.",
+              kesimpulan: ditutup ? "Kondisi membaik, kasus dinyatakan selesai ditangani." : null,
+              tindakLanjut: ditutup ? "Pemantauan rutin bulanan oleh kader." : null,
+              ditutup,
+              pesan: {
+                create: Array.from({ length: acakInt(2, 4) }, (_, idx) => ({
+                  pengirimId: users[acak(pengirimDiskusi)].id,
+                  tahap: idx === 0 ? "BRIEFING" : "PELAKSANAAN",
+                  isi: acak(ISI_PESAN_DISKUSI_POOL),
+                })),
+              },
+            },
+          };
+
+      await prisma.kasusBalita.create({
+        data: {
+          namaBalita: `An. ${acak(NAMA_DEPAN_BALITA)} ${acak(INISIAL_KELUARGA)}.`,
+          namaOrangTua: `${acak(["Ny.", "Tn."])} ${acak(NAMA_ORTU)}`,
+          jenisKelamin: acak(["Laki-laki", "Perempuan"]),
+          alamat: `Kelurahan ${acak(KELURAHAN)}, Payakumbuh`,
+          hasilKunjungan: acak(HASIL_KUNJUNGAN_POOL),
+          indikasiRisiko: acak(INDIKASI_RISIKO_POOL),
+          statusKasus: status,
+          dibuatOlehId: users[acak(penginput)].id,
+          createdAt,
+          updatedAt: createdAt,
+          skrining,
+          rujukan,
+          diskusi,
+        },
+      });
+    }
+  }
+  console.log("  - Kasus tambahan berhasil dibuat.");
+}
+
 async function main() {
   console.log("Membuat akun pengguna...");
   const users = {};
@@ -203,6 +389,9 @@ async function main() {
     });
     console.log("  - Contoh kasus dibuat:", kasusA.namaBalita);
   }
+
+  console.log("Membuat kasus tambahan untuk dashboard (data demo)...");
+  await buatKasusTambahan(users);
 
   console.log("Membuat contoh jadwal pertemuan tim...");
   const pertemuanAda = await prisma.pertemuanTim.findFirst();

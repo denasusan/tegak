@@ -46,13 +46,14 @@ export default async function DashboardPage({ searchParams }) {
       ) : null}
 
       <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-        <StatCard label="Kasus Aktif" value={kasusAktif} hint="Belum selesai ditangani" />
-        <StatCard label="Kasus Selesai" value={kasusSelesai} tone="ink" />
-        <StatCard label="Rujukan Menunggu" value={rujukanMenunggu} tone="accent" />
+        <StatCard label="Kasus Aktif" value={kasusAktif} hint="Belum selesai ditangani" href="/kasus?status=aktif" />
+        <StatCard label="Kasus Selesai" value={kasusSelesai} tone="ink" href="/kasus?status=SELESAI" />
+        <StatCard label="Rujukan Menunggu" value={rujukanMenunggu} tone="accent" href="/kasus?rujukan=aktif" />
         <StatCard
           label="Pertemuan Berikutnya"
           value={pertemuanBerikutnya ? new Date(pertemuanBerikutnya.tanggal).toLocaleDateString("id-ID", { day: "2-digit", month: "short" }) : "-"}
           hint={pertemuanBerikutnya ? pertemuanBerikutnya.judul : "Belum dijadwalkan"}
+          href="/jadwal"
         />
       </div>
 

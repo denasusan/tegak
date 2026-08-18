@@ -19,3 +19,18 @@ export function SubmitButton({ children, className = "", variant = "primary" }) 
     </button>
   );
 }
+
+/** Tombol submit yang minta konfirmasi browser dulu — dipakai untuk aksi hapus. */
+export function ConfirmSubmitButton({ children, confirmText, className = "" }) {
+  return (
+    <button
+      type="submit"
+      className={className}
+      onClick={(e) => {
+        if (!window.confirm(confirmText)) e.preventDefault();
+      }}
+    >
+      {children}
+    </button>
+  );
+}

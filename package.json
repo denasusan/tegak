@@ -1,8 +1,8 @@
 {
-  "name": "ipc-stunting-app",
+  "name": "tegak",
   "version": "0.1.0",
   "private": true,
-  "description": "Platform Kolaborasi Interprofessional Teamworking Berbasis Aplikasi Layanan Primer Puskesmas — Strategi Penurunan Stunting di Kota Payakumbuh",
+  "description": "TEGAK — Kolaborasi Sakato untuk Stunting. Platform Kolaborasi Interprofessional Teamworking Berbasis Aplikasi Layanan Primer Puskesmas — Strategi Penurunan Stunting di Kota Payakumbuh",
   "scripts": {
     "dev": "next dev",
     "build": "next build",

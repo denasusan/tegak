@@ -1,3 +1,49 @@
+import { labelRole } from "./roles";
+
+const NAMA_BULAN_SINGKAT = [
+  "Jan", "Feb", "Mar", "Apr", "Mei", "Jun",
+  "Jul", "Ags", "Sep", "Okt", "Nov", "Des",
+];
+
+/** Hitung jumlah kasus per bulan untuk N bulan terakhir (termasuk bulan berjalan). */
+export function hitungTrenBulanan(rows, jumlahBulan = 6) {
+  const sekarang = new Date();
+  const buckets = [];
+  for (let i = jumlahBulan - 1; i >= 0; i--) {
+    const d = new Date(sekarang.getFullYear(), sekarang.getMonth() - i, 1);
+    buckets.push({ tahun: d.getFullYear(), bulan: d.getMonth(), label: NAMA_BULAN_SINGKAT[d.getMonth()], jumlah: 0 });
+  }
+  for (const row of rows) {
+    const d = new Date(row.createdAt);
+    const bucket = buckets.find((b) => b.tahun === d.getFullYear() && b.bulan === d.getMonth());
+    if (bucket) bucket.jumlah += 1;
+  }
+  return buckets;
+}
+
+/** Daftar peran (dipisah koma) yang terlibat menangani satu kasus. */
+export function profesiBertugas(kasus) {
+  const roles = new Set();
+  if (kasus.dibuatOleh) roles.add(kasus.dibuatOleh.role);
+  if (kasus.skrining?.diisiOleh) roles.add(kasus.skrining.diisiOleh.role);
+  for (const r of kasus.rujukan ?? []) {
+    if (r.jenisRujukan === "AHLI_GIZI") roles.add("AHLI_GIZI");
+  }
+  return [...roles].map(labelRole).join(", ") || "-";
+}
+
+/** Format "X menit/jam/hari lalu" dari sebuah tanggal. */
+export function waktuRelatif(date) {
+  const diffMs = Date.now() - new Date(date).getTime();
+  const menit = Math.floor(diffMs / 60000);
+  if (menit < 1) return "baru saja";
+  if (menit < 60) return `${menit} menit lalu`;
+  const jam = Math.floor(menit / 60);
+  if (jam < 24) return `${jam} jam lalu`;
+  const hari = Math.floor(jam / 24);
+  return `${hari} hari lalu`;
+}
+
 export function formatTanggal(date) {
   if (!date) return "-";
   return new Intl.DateTimeFormat("id-ID", {
