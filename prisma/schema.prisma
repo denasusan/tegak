@@ -1,0 +1,271 @@
+// Skema database — Platform Kolaborasi Interprofessional Teamworking
+// Layanan Primer Puskesmas — Strategi Penurunan Stunting, Kota Payakumbuh
+//
+// Provider: PostgreSQL (via Supabase). DATABASE_URL memakai connection
+// pooler Supabase (port 6543, pgbouncer) untuk dipakai aplikasi saat
+// runtime (wajib untuk lingkungan serverless seperti Vercel), sedangkan
+// DIRECT_URL memakai koneksi langsung (port 5432) yang dipakai Prisma
+// khusus saat menjalankan migration. Isi keduanya di .env / Environment
+// Variables Vercel — lihat .env.example.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+// -----------------------------------------------------------------------
+// Pengguna & peran (6 peran sesuai temuan FGD)
+// -----------------------------------------------------------------------
+
+enum Role {
+  KADER
+  BIDAN
+  DOKTER
+  AHLI_GIZI
+  SANITARIAN
+  KEPALA_PUSKESMAS
+}
+
+model User {
+  id        String   @id @default(cuid())
+  nama      String
+  email     String   @unique
+  password  String // hashed dengan bcrypt
+  role      Role
+  puskesmas String   @default("Puskesmas Padang Kerambil")
+  createdAt DateTime @default(now())
+
+  kasusDibuat        KasusBalita[]
+  skriningDiisi      Skrining[]
+  pesanDiskusi       PesanDiskusi[]
+  progresBelajar     ProgresBelajar[]
+  praktikBaik        PraktikBaik[]
+  kehadiranPertemuan KehadiranPertemuan[]
+}
+
+// -----------------------------------------------------------------------
+// Layar 1 — Deteksi & Input Kasus Baru
+// Layar 2 — Profil Kasus Balita Terpadu & Skrining
+// -----------------------------------------------------------------------
+
+enum StatusKasus {
+  MENUNGGU_SKRINING
+  SKRINING_SELESAI
+  DIRUJUK
+  DALAM_DISKUSI_TIM
+  SELESAI
+}
+
+model KasusBalita {
+  id             String      @id @default(cuid())
+  namaBalita     String
+  namaOrangTua   String
+  tanggalLahir   DateTime?
+  jenisKelamin   String?
+  alamat         String?
+  hasilKunjungan String? // hasil kunjungan rumah / penimbangan
+  indikasiRisiko String // tanda/indikasi risiko stunting yang dicatat kader/bidan
+  statusKasus    StatusKasus @default(MENUNGGU_SKRINING)
+
+  dibuatOlehId String
+  dibuatOleh   User   @relation(fields: [dibuatOlehId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  skrining           Skrining?
+  rujukan            Rujukan[]
+  diskusi            DiskusiKasus?
+  praktikBaikTerkait PraktikBaik[]
+}
+
+model Skrining {
+  id      String      @id @default(cuid())
+  kasusId String      @unique
+  kasus   KasusBalita @relation(fields: [kasusId], references: [id])
+
+  // Dasar temuan FGD P1: alur skrining mantoux / HB / infeksi berulang
+  testMantoux     String? // "POSITIF" | "NEGATIF" | "BELUM_DIPERIKSA"
+  hasilHB         String?
+  infeksiBerulang Boolean @default(false)
+
+  // Asesmen multifaktor
+  lilaIbu       String?
+  sosialEkonomi String?
+  polaAsuh      String?
+  riwayatBBLR   Boolean @default(false)
+  mikrosefali   Boolean @default(false)
+  isk           Boolean @default(false)
+  tb            Boolean @default(false)
+
+  catatanTambahan String?
+  hasilSkrining   String? // "POSITIF" | "NEGATIF" — kesimpulan dokter
+
+  diisiOlehId String
+  diisiOleh   User   @relation(fields: [diisiOlehId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// -----------------------------------------------------------------------
+// Layar 3 — Rujukan Otomatis Lintas Profesi
+// -----------------------------------------------------------------------
+
+enum StatusRujukan {
+  MENUNGGU
+  DIKONFIRMASI
+  SELESAI_DITANGANI
+  KEMBALI_KE_PUSKESMAS
+}
+
+model Rujukan {
+  id      String      @id @default(cuid())
+  kasusId String
+  kasus   KasusBalita @relation(fields: [kasusId], references: [id])
+
+  jenisRujukan String // "AHLI_GIZI" | "RS_TB"
+  tujuan       String // mis. "Ahli Gizi Puskesmas" atau "RS — dr. Anak"
+  alasan       String
+  status       StatusRujukan @default(MENUNGGU)
+  catatanBalik String? // catatan saat RS mengirim kembali ke Puskesmas
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// -----------------------------------------------------------------------
+// Layar 4 — Forum Diskusi Tim per Kasus
+// -----------------------------------------------------------------------
+
+enum TahapDiskusi {
+  BRIEFING
+  PELAKSANAAN
+  DEBRIEFING
+}
+
+model DiskusiKasus {
+  id      String      @id @default(cuid())
+  kasusId String      @unique
+  kasus   KasusBalita @relation(fields: [kasusId], references: [id])
+
+  briefing     String? // ringkasan kasus & tujuan diskusi
+  kesimpulan   String? // wajib diisi sebelum kasus bisa ditutup
+  tindakLanjut String? // wajib diisi sebelum kasus bisa ditutup
+  ditutup      Boolean @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  pesan PesanDiskusi[]
+}
+
+model PesanDiskusi {
+  id         String       @id @default(cuid())
+  diskusiId  String
+  diskusi    DiskusiKasus @relation(fields: [diskusiId], references: [id])
+  pengirimId String
+  pengirim   User         @relation(fields: [pengirimId], references: [id])
+
+  tahap TahapDiskusi @default(PELAKSANAAN)
+  isi   String
+
+  createdAt DateTime @default(now())
+}
+
+// -----------------------------------------------------------------------
+// Layar 5 — Modul Microlearning IPC
+// -----------------------------------------------------------------------
+
+model ModulBelajar {
+  id          String @id @default(cuid())
+  judul       String
+  domainIPC   String // salah satu dari 4 domain kolaborasi IPC
+  deskripsi   String
+  durasiMenit Int    @default(10)
+  studiKasus  String?
+  urutan      Int    @default(0)
+
+  kuis    Kuis[]
+  progres ProgresBelajar[]
+}
+
+model Kuis {
+  id           String       @id @default(cuid())
+  modulId      String
+  modul        ModulBelajar @relation(fields: [modulId], references: [id])
+  pertanyaan   String
+  pilihan      String // JSON string berisi array pilihan jawaban
+  jawabanBenar Int // index pilihan yang benar (0-based)
+  urutan       Int    @default(0)
+}
+
+model ProgresBelajar {
+  id      String       @id @default(cuid())
+  userId  String
+  user    User         @relation(fields: [userId], references: [id])
+  modulId String
+  modul   ModulBelajar @relation(fields: [modulId], references: [id])
+
+  selesai    Boolean @default(false)
+  skorKuis   Int?
+  sertifikat Boolean @default(false)
+
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, modulId])
+}
+
+// -----------------------------------------------------------------------
+// Layar 6 — Notifikasi & Jadwal Pertemuan Tim
+// -----------------------------------------------------------------------
+
+model PertemuanTim {
+  id      String   @id @default(cuid())
+  judul   String
+  tanggal DateTime
+  topik   String
+  notulen String?
+
+  createdAt DateTime @default(now())
+
+  kehadiran KehadiranPertemuan[]
+}
+
+model KehadiranPertemuan {
+  id          String       @id @default(cuid())
+  pertemuanId String
+  pertemuan   PertemuanTim @relation(fields: [pertemuanId], references: [id])
+  userId      String
+  user        User         @relation(fields: [userId], references: [id])
+  hadir       Boolean      @default(true)
+
+  @@unique([pertemuanId, userId])
+}
+
+// -----------------------------------------------------------------------
+// Layar 8 — Knowledge Sharing Praktik Baik
+// (Layar 7 / Dashboard Monitoring dihitung langsung dari data di atas,
+//  tidak perlu tabel tersendiri)
+// -----------------------------------------------------------------------
+
+model PraktikBaik {
+  id            String @id @default(cuid())
+  judul         String
+  deskripsi     String
+  kategoriKasus String // untuk pencarian "berdasarkan kasus serupa"
+  puskesmasAsal String
+
+  dibagikanOlehId String
+  dibagikanOleh   User   @relation(fields: [dibagikanOlehId], references: [id])
+
+  kasusTerkaitId String?
+  kasusTerkait   KasusBalita? @relation(fields: [kasusTerkaitId], references: [id])
+
+  createdAt DateTime @default(now())
+}
