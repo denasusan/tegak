@@ -8,7 +8,7 @@ import { selesaikanGoogleLogin } from "@/lib/google-oauth";
 const STATE_COOKIE = "google_oauth_state";
 
 // Role default untuk akun baru yang login lewat Google (belum pernah
-// terdaftar sebelumnya). Kader dipilih karena ini peran pintu masuk alur
+// terdaftar sebelumnya). Perawat dipilih karena ini peran pintu masuk alur
 // deteksi kasus (Layar 1) — admin/Kepala Puskesmas bisa mengubah role
 // pengguna tersebut belakangan lewat database jika perlu.
 const ROLE_DEFAULT_AKUN_BARU = "KADER";

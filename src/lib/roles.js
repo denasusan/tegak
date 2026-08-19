@@ -10,7 +10,7 @@ export const ROLES = [
 ];
 
 export const ROLE_LABEL = {
-  KADER: "Kader",
+  KADER: "Perawat",
   BIDAN: "Bidan",
   DOKTER: "Dokter",
   AHLI_GIZI: "Ahli Gizi",
@@ -19,7 +19,7 @@ export const ROLE_LABEL = {
 };
 
 export const ROLE_SINGKATAN = {
-  KADER: "KD",
+  KADER: "PR",
   BIDAN: "BD",
   DOKTER: "DK",
   AHLI_GIZI: "GZ",

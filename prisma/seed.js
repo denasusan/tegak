@@ -8,7 +8,7 @@ const bcrypt = require("bcryptjs");
 const prisma = new PrismaClient();
 
 const AKUN = [
-  { nama: "Sari (Kader)", email: "kader@puskesmas.id", role: "KADER" },
+  { nama: "Sari (Perawat)", email: "perawat@puskesmas.id", role: "KADER" },
   { nama: "Bidan Ratna", email: "bidan@puskesmas.id", role: "BIDAN" },
   { nama: "dr. Andra", email: "dokter@puskesmas.id", role: "DOKTER" },
   { nama: "Gizi — Wulan, S.Gz", email: "gizi@puskesmas.id", role: "AHLI_GIZI" },
@@ -26,7 +26,7 @@ const MODUL_BELAJAR = [
       "Memahami nilai bersama saat bekerja lintas profesi: saling menghormati keahlian masing-masing, dan menempatkan kepentingan pasien di atas ego profesi.",
     durasiMenit: 10,
     studiKasus:
-      "Studi kasus: kader menemukan balita BBLR di Padang Kerambil — bagaimana kader, bidan, dan dokter saling menghargai peran masing-masing dalam satu alur penanganan.",
+      "Studi kasus: perawat menemukan balita BBLR di Padang Kerambil — bagaimana perawat, bidan, dan dokter saling menghargai peran masing-masing dalam satu alur penanganan.",
     urutan: 1,
     kuis: [
       {
@@ -45,7 +45,7 @@ const MODUL_BELAJAR = [
     judul: "Domain 2 — Peran & Tanggung Jawab",
     domainIPC: "Roles/Responsibilities",
     deskripsi:
-      "Mengenali batas dan cakupan peran tiap profesi (kader, bidan, dokter, ahli gizi, sanitarian) agar tidak tumpang tindih maupun ada yang terlewat.",
+      "Mengenali batas dan cakupan peran tiap profesi (perawat, bidan, dokter, ahli gizi, sanitarian) agar tidak tumpang tindih maupun ada yang terlewat.",
     durasiMenit: 10,
     studiKasus:
       "Studi kasus: pembagian kerja saat kasus stunting dengan penyakit penyerta TB — siapa mengerjakan apa dari deteksi sampai monitoring.",
@@ -57,7 +57,7 @@ const MODUL_BELAJAR = [
           "Supaya bisa mengambil alih pekerjaan profesi lain sepenuhnya",
           "Supaya tahu kapan harus merujuk/melibatkan profesi yang tepat, tanpa tumpang tindih",
           "Tidak penting, cukup fokus pada tugas sendiri",
-          "Hanya berlaku untuk tenaga medis, bukan kader",
+          "Hanya berlaku untuk tenaga medis, bukan perawat",
         ],
         jawabanBenar: 1,
       },
@@ -261,7 +261,7 @@ async function buatKasusTambahan(users) {
             create: {
               briefing: "Ringkasan kasus & tujuan diskusi tim lintas profesi.",
               kesimpulan: ditutup ? "Kondisi membaik, kasus dinyatakan selesai ditangani." : null,
-              tindakLanjut: ditutup ? "Pemantauan rutin bulanan oleh kader." : null,
+              tindakLanjut: ditutup ? "Pemantauan rutin bulanan oleh perawat." : null,
               ditutup,
               pesan: {
                 create: Array.from({ length: acakInt(2, 4) }, (_, idx) => ({

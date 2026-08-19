@@ -12,9 +12,9 @@ export default function KasusBaruPage({ searchParams }) {
   return (
     <div>
       <PageHeader
-        eyebrow="Layar 1 dari 8 · Pengguna: Kader / Bidan"
+        eyebrow="Layar 1 dari 8 · Pengguna: Perawat / Bidan"
         title="📱 Input Kasus Balita"
-        subtitle="Saat kader menemukan kasus balita berisiko di lapangan, atau bidan mencatat hasil kunjungan rumah."
+        subtitle="Saat perawat menemukan kasus balita berisiko di lapangan, atau bidan mencatat hasil kunjungan rumah."
         action={<PrioritasBadge prioritas="Tinggi" />}
       />
 
@@ -96,8 +96,8 @@ export default function KasusBaruPage({ searchParams }) {
         <Card className="h-fit bg-primary-50">
           <p className="text-xs font-bold uppercase tracking-wide text-primary-700">Dasar Temuan FGD</p>
           <p className="mt-2 text-sm text-primary-900">
-            P1: bayi BBLR/prematur berisiko stunting. P3: ada kesenjangan hasil kader vs nakes —
-            modul ini menyatukan data dari sumber pertama (kader) langsung ke sistem.
+            P1: bayi BBLR/prematur berisiko stunting. P3: ada kesenjangan hasil perawat vs nakes —
+            modul ini menyatukan data dari sumber pertama (perawat) langsung ke sistem.
           </p>
         </Card>
       </div>

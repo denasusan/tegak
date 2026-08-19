@@ -4,7 +4,7 @@ import { ROLES, ROLE_LABEL, ROLE_SINGKATAN } from "@/lib/roles";
 const AKUN_CONTOH = ROLES.map((role) => ({
   role,
   email: {
-    KADER: "kader@puskesmas.id",
+    KADER: "perawat@puskesmas.id",
     BIDAN: "bidan@puskesmas.id",
     DOKTER: "dokter@puskesmas.id",
     AHLI_GIZI: "gizi@puskesmas.id",
@@ -47,7 +47,7 @@ export default function LoginPage({ searchParams }) {
         <div className="p-8">
           <h2 className="text-xl font-bold text-ink-900">Masuk ke TEGAK</h2>
           <p className="mt-1 text-sm text-ink-500">
-            Gunakan akun peran Anda (Kader, Bidan, Dokter, Ahli Gizi, Sanitarian, atau Kepala
+            Gunakan akun peran Anda (Perawat, Bidan, Dokter, Ahli Gizi, Sanitarian, atau Kepala
             Puskesmas).
           </p>
 

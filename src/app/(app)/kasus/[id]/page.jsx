@@ -63,7 +63,7 @@ export default async function ProfilKasusPage({ params, searchParams }) {
       <div className="grid gap-6 lg:grid-cols-3">
         <div className="space-y-6 lg:col-span-2">
           <Card>
-            <CardHeader title="Riwayat dari Kader / Bidan" subtitle="Riwayat sebelumnya langsung terlihat, tidak perlu tanya ulang." />
+            <CardHeader title="Riwayat dari Perawat / Bidan" subtitle="Riwayat sebelumnya langsung terlihat, tidak perlu tanya ulang." />
             <dl className="grid gap-3 text-sm sm:grid-cols-2">
               <div>
                 <dt className="text-ink-400">Nama Orang Tua</dt>

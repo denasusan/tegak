@@ -69,7 +69,7 @@ model KasusBalita {
   jenisKelamin   String?
   alamat         String?
   hasilKunjungan String? // hasil kunjungan rumah / penimbangan
-  indikasiRisiko String // tanda/indikasi risiko stunting yang dicatat kader/bidan
+  indikasiRisiko String // tanda/indikasi risiko stunting yang dicatat perawat/bidan
   statusKasus    StatusKasus @default(MENUNGGU_SKRINING)
 
   dibuatOlehId String

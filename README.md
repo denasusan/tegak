@@ -7,7 +7,7 @@ disusun berdasarkan temuan FGD Puskesmas Padang Kerambil, Fase 1, 2026).
 
 ## Fitur (8 Layar)
 
-1. **Deteksi & Input Kasus Baru** — `/kasus/baru` (Kader, Bidan)
+1. **Deteksi & Input Kasus Baru** — `/kasus/baru` (Perawat, Bidan)
 2. **Profil Kasus Balita Terpadu & Skrining** — `/kasus/[id]` (Dokter)
 3. **Rujukan Otomatis Lintas Profesi** — `/kasus/[id]/rujukan` (otomatis dari Layar 2)
 4. **Forum Diskusi Tim per Kasus** — `/kasus/[id]/diskusi` (semua profesi)
@@ -61,7 +61,7 @@ Semua akun memakai kata sandi: **`puskesmas123`**
 
 | Peran | Email |
 |---|---|
-| Kader | kader@puskesmas.id |
+| Perawat | perawat@puskesmas.id |
 | Bidan | bidan@puskesmas.id |
 | Dokter | dokter@puskesmas.id |
 | Ahli Gizi | gizi@puskesmas.id |
